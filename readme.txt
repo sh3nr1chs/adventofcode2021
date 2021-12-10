@@ -1,0 +1,1 @@
+To run use the 'start' npm script in the package json.
