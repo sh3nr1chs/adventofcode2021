@@ -1,4 +1,5 @@
 import { DayOne } from "./Days/Day1/DayOne.js";
+import { DayTen } from "./Days/Day10/DayTen.js";
 import { DayTwo } from "./Days/Day2/DayTwo.js";
 import { DayThree } from "./Days/Day3/DayThree.js";
 import { DayFour } from "./Days/Day4/DayFour.js";
@@ -10,7 +11,7 @@ import { DayNine } from "./Days/Day9/DayNine.js";
 
 
 let pastDays = [new DayOne(), new DayTwo(), new DayThree(), new DayFour(), new DayFive(), 
-                new DaySix(), new DaySeven(), new DayEight(), new DayNine()];
+                new DaySix(), new DaySeven(), new DayEight(), new DayNine(), new DayTen()];
 let totalCorrect = 0;
 pastDays.forEach(day => {
     day.solvePuzzlesForDay(day.dayName);
@@ -18,6 +19,7 @@ pastDays.forEach(day => {
 })
 
 console.log(`${totalCorrect} / ${pastDays.length * 2} CORRECT`)
+
 
 
 
