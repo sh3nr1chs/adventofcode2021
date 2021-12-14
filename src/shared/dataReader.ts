@@ -24,6 +24,17 @@ export class DataReader {
         return textByLine;
     }
 
+    convertFileToArrayOfNumberArrays(fileName:string) {
+        let arrayOfNumberArrays: any[] = []
+        let rows =this.convertFileToStringArray(fileName);
+        rows.forEach(row => {
+            let stringArray = row.toString().split('')
+            arrayOfNumberArrays.push(Util.convertStringArrayToNumberArray(stringArray))
+        })
+
+        return arrayOfNumberArrays;
+    }
+
     private determineNewLineChar(data: string) {
         let newLineChar = "\n";
         if (data.includes("\r\n")){
