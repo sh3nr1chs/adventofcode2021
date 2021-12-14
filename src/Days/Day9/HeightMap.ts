@@ -1,15 +1,20 @@
+import { TwoDArrayService } from "../../shared/2DArrayService.js";
+import { Util } from "../../shared/util.js";
+
 export class HeightMap {
+    twoDArrayService: TwoDArrayService;
     heightMap: any[] = [];
 
     constructor(heightMapRows: any[]){
         this.heightMap = heightMapRows;
+        this.twoDArrayService = new TwoDArrayService(this.heightMap);
     }
 
-    getLowPointRiskLevels() {
+    getLowPointRiskLevels(): number[] {
         let riskLevels : number[] = [];
         let lowPointIndexes = this.getLowPointIndexes();
         lowPointIndexes.forEach((lowPointIndex: number[]) => {
-            let lowPointHeight = this.getReadingAtIndex(lowPointIndex)
+            let lowPointHeight = this.twoDArrayService.getValueAtIndex(lowPointIndex)
             riskLevels.push(lowPointHeight+1)
         })
         return riskLevels;
@@ -39,38 +44,29 @@ export class HeightMap {
         return lowPoints;
     }
 
-    private indexIsAlreadyInList(list: any[], index: number[]) {
-        let isInlist = false;
-        list.forEach(item => {
-            if (item[0] === index[0] && item[1] === index[1]){
-                isInlist = true;
-            }
-        })
-
-        return isInlist;
-    }
-
     private getBasinIndices(index: number[], basinIndices:any[] = []): any[] {
-        let height = this.getReadingAtIndex(index);
-        if (height !== 9 && !this.indexIsAlreadyInList(basinIndices, index)) {
+        let valueAtIndex = this.twoDArrayService.getValueAtIndex(index);
+        let height = 0;
+
+        if (valueAtIndex === undefined) {
+            height = 9;
+        } else {
+            height = valueAtIndex
+        }
+
+        if (height !== 9 && !Util.indexIsAlreadyInList(basinIndices, index)) {
             basinIndices.push(index)
-            this.getAdjacentIndices(index).forEach(index => this.getBasinIndices(index, basinIndices))
+            this.twoDArrayService.getAdjacentIndices(index, false).forEach(index => this.getBasinIndices(index, basinIndices))
         }
 
         return basinIndices;
     }
 
-    private getAdjacentIndices(index:number[]) {
-        let rowIndex = index[0];
-        let colIndex = index[1];
-        return [[rowIndex-1, colIndex], [rowIndex, colIndex-1], [rowIndex, colIndex+1], [rowIndex+1, colIndex]];
-    }
-
     private getAdjacentValues(index:number[]): number[] {
         let adjacentReadings: number[] = [];
-        let checkIndexes = this.getAdjacentIndices(index)
+        let checkIndexes = this.twoDArrayService.getAdjacentIndices(index, false)
         checkIndexes.forEach(checkIndex=>{
-            adjacentReadings.push(this.getReadingAtIndex(checkIndex));
+            adjacentReadings.push(this.twoDArrayService.getValueAtIndex(checkIndex));
         })
         return adjacentReadings;
     }
@@ -85,21 +81,5 @@ export class HeightMap {
             index++
         }
         return isLowPoint;
-    }
-
-    private getReadingAtIndex(index: number[]){
-        let reading = 9;
-        if(this.isValidRowIndex(index[0]) && this.isValidColIndex(index[1])) {
-            reading = this.heightMap[index[0]][index[1]]
-        }
-        return reading;
-    }
-
-    private isValidRowIndex(rowIndex:number) {
-        return rowIndex > -1 && rowIndex < this.heightMap.length
-    }
-
-    private isValidColIndex(colIndex:number) {
-        return colIndex > -1 && colIndex < this.heightMap[0].length
     }
 }

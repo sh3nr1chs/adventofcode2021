@@ -5,7 +5,7 @@ export class TwoDArrayService {
         this.twoDArray = twoDArray;
     }
 
-    getValueAtIndex(index: number[]){
+    getValueAtIndex(index: number[]): number{
         let reading = undefined;
         if(this.isValidRowIndex(index[0]) && this.isValidColIndex(index[1])) {
             reading = this.twoDArray[index[0]][index[1]]

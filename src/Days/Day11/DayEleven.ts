@@ -23,8 +23,6 @@ export class DayEleven extends Day implements DayInterface {
          while(dayIndex < numDays) {
             let flashingList = this.performFlash();
              numFlash += flashingList.length
-             this.printOctopuses()
-             console.log(`num flash: ${numFlash}`);
              dayIndex++;
          }
          return numFlash
