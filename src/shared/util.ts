@@ -17,4 +17,15 @@ export class Util {
         })
         return numArray;
     }
+
+    static indexIsAlreadyInList(list: any[], index: number[]) {
+        let isInlist = false;
+        list.forEach(item => {
+            if (item[0] === index[0] && item[1] === index[1]){
+                isInlist = true;
+            }
+        })
+
+        return isInlist;
+    }
 }
