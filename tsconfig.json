@@ -6,7 +6,7 @@
     "sourceMap": true,
     "target": "ES6",
     "noImplicitAny": true,
-    "noImplicitReturns": true,
+    "noImplicitReturns": false,
     "strict": true,
     "moduleResolution": "node"
   }
