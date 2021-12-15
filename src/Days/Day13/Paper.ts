@@ -8,24 +8,20 @@ export class Paper{
     countMarks(){
         let count = 0;
         this.paperRows.forEach(row => {
-            row.forEach((place: string) =>
-            {
-                if (place === '#'){
-                    count++;
-                }
-            })
+            count += row.filter((place:string) => place === '#').length
         })
-
         return count;
     }
 
     markPaper(markIndexes: any[]) {
         this.createPaper(markIndexes);
-        this.printPaper();
         markIndexes.forEach(markIndex => {
             this.markIndex(markIndex);
         })
-        
+    }
+
+    private markIndex(index:number[], marker:string = '#'){
+        this.paperRows[index[1]][index[0]] = marker;
     }
 
     private createPaper(markIndexes: any[]) {
@@ -48,8 +44,14 @@ export class Paper{
             this.paperRows.push(this.createEmptyRow(maxColIndex+1));
             rowIndex ++;
         }
+    }
 
-        console.log(`The Paper has ${this.paperRows[0].length} cols and ${this.paperRows.length} rows.`)
+    private createEmptyRow(numCols: number){
+        let row = [];
+        while(row.length < numCols){
+            row.push('.');
+        }
+        return row;
     }
 
     foldPaper(folds: string[]) {
@@ -60,78 +62,82 @@ export class Paper{
             if (foldSplit[0] === 'y') {
                 this.foldForY(foldValue);
             } else {
+            //if x, the ROW stays the same, but the COL changes
                 this.foldForX(foldValue);
-            }
-            
+            }            
         })
     }
 
-    private foldForX(foldValue: number) {
-        let colsAfterFold: any[] = this.getColsAfterFold(foldValue);
-        // console.log(colsAfterFold)
-        this.removeColsFromPaper(foldValue);
-        colsAfterFold.forEach((row: string[], rowIndex: number) => {
-            row.forEach((place, colIndex) => {
-                if(place === '#') {
-                    this.markIndex([row.length - colIndex-1 , rowIndex])
+    private foldForY(foldValue:number) {
+        let rowsAfterFold = this.retrieveRowsAfterFold(foldValue);
+        this.updatePaperToRemoveRows(foldValue);     
+        
+        //actual folding
+        rowsAfterFold.forEach((row: string[], rowIndex) => {
+            row.forEach((place: string, colIndex: number) => {
+                if (place === '#'){
+                    let newRowIndex = foldValue-(rowIndex+1)
+                    this.markIndex([colIndex, newRowIndex])
                 }
             })
         })
-        
     }
 
-    private getColsAfterFold(foldValue:number){
-        let afterFold: any[] = [];
-        this.paperRows.forEach(row => {
-            afterFold.push(row.filter((place:string, index:number) => index > foldValue))
-        })
-
-        return afterFold
-    }
-
-    private removeColsFromPaper(foldValue:number) {
-        this.paperRows.forEach(row => {
-            while (row.length !== foldValue) {
-                row.pop();
+    private retrieveRowsAfterFold(foldValue:number) {
+        let rowsAfterFold: any[] = [];
+        this.paperRows.forEach((row: string[], rowIndex) => {
+            if (rowIndex > foldValue) {
+                rowsAfterFold.push(row)
             }
-        })
+        });
 
-        this.printPaper();
-        console.log(`new number of cols: ${this.paperRows[0].length}`)
+        return rowsAfterFold;
     }
 
-    private foldForY(foldValue: number) {
-        let rowsBelowFold = this.paperRows.filter((row, index: number) => index > foldValue)
-        // console.log(rowsBelowFold)
-        this.removeRowsFromPaper(foldValue, rowsBelowFold.length);
-        rowsBelowFold.forEach((rowBelowFold, rowIndex:number) => {
-            rowBelowFold.forEach((markInRow: string, colIndex: number) => {
-                if(markInRow === '#') {
-                    this.markIndex([colIndex, this.paperRows.length-1 - rowIndex])
+    private updatePaperToRemoveRows(foldValue:number){
+        while (this.paperRows.length > foldValue){
+            this.paperRows.pop();
+        }
+    }
+
+    private foldForX(foldValue:number) {
+        let colsAfterFold = this.retrieveColsAfterFold(foldValue);
+        this.updatePaperToRemoveCols(foldValue);     
+        
+        //actual folding
+        colsAfterFold.forEach((row: string[], rowIndex) => {
+            row.forEach((place: string, colIndex: number) => {
+                if (place === '#'){
+                    let newColIndex = foldValue-(colIndex+1)
+                    this.markIndex([newColIndex, rowIndex])
+                }
+            })
+        })
+    }
+
+    private retrieveColsAfterFold(foldValue:number) {
+        let colsAfterFold: any[] = [];
+        this.paperRows.forEach((row: string[]) => {
+            let rowString = '';
+            row.forEach((place: string, colIndex:number) => {
+                if(colIndex > foldValue) {
+                    rowString = rowString.concat(place)
+                }
+            });
+            colsAfterFold.push(rowString.split(''));
+        });
+
+        return colsAfterFold;
+    }
+
+    private updatePaperToRemoveCols(foldValue:number){
+        this.paperRows.forEach((row) => {
+            row.forEach((place: string) => {
+                while (row.length > foldValue){
+                    row.pop();
                 }
             });
         })
-    }
-
-    private removeRowsFromPaper(foldValue:number, numRowsBelowFold: number) {
-        while (this.paperRows.length !== foldValue) {
-            this.paperRows.pop();
-        }
-
-        this.printPaper();
-        console.log(`new number of rows: ${this.paperRows.length}`)
-    }
-
-    private markIndex(markIndex: number[], marker='#') {
-        this.paperRows[markIndex[1]][markIndex[0]] = marker;
-    }
-
-    private createEmptyRow(rowLength: number){
-        let row = [];
-        while(row.length < rowLength){
-            row.push('.');
-        }
-        return row;
     }
 
     printPaper() {

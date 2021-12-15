@@ -1,3 +1,4 @@
+import { Util } from "../../shared/util.js";
 import { Day } from "../Day.js";
 import { DayInterface } from "../DayInterface.js";
 import { Paper } from "./Paper.js";
@@ -17,10 +18,9 @@ export class DayThirteen extends Day implements DayInterface {
         this.paper.markPaper(this.markIndexes)
         this.paper.foldPaper([this.folds[0]]);
         let numMarks = this.paper.countMarks();
-        // this.paper.printPaper();
 
         console.log(`Num marks after a single fold: ${numMarks}`)
-        return false;
+        return Util.checkAnswer(numMarks, 655);
     }
 
     partTwo() {
@@ -31,11 +31,12 @@ export class DayThirteen extends Day implements DayInterface {
         this.paper.printPaper();
 
         console.log(`Num marks after all folds: ${numMarks}`)
-        return false;
+        console.log("The printed paper should display JPZCUAUR for the code.")
+        return Util.checkAnswer(numMarks, 95);
     }
 
     prepareDataForPuzzle() {
-        let fileName = "inputFiles/testInput.txt"
+        let fileName = "inputFiles/dayThirteenInput.txt"
         this.markIndexes = this.transparentPaperReader.readMarks(fileName)
         this.folds = this.transparentPaperReader.readFolds(fileName)
     }
