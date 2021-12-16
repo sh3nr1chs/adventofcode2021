@@ -28,4 +28,8 @@ export class Util {
 
         return isInlist;
     }
+
+    static indexIsAlreadyInList2(list: string[], index: string) {
+        return list.indexOf(index) !== -1;
+    }
 }
