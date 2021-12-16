@@ -36,10 +36,4 @@ export class DayFifteen extends Day implements DayInterface {
         }
  
     }
-
-
-   
-
-
-
 }
