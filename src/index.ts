@@ -15,16 +15,13 @@ import { DayEight } from "./Days/Day8/DayEight.js";
 import { DayNine } from "./Days/Day9/DayNine.js";
 
 
-// let pastDays = [new DayOne(), new DayTwo(), new DayThree(), new DayFour(), new DayFive(), 
-//                 new DaySix(), new DaySeven(), new DayEight(), new DayNine(), new DayTen(),
-//                 new DayEleven(), new DayTwelve(), new DayThirteen(), new DayFourteen()];
-// let totalCorrect = 0;
-// pastDays.forEach(day => {
-//     day.solvePuzzlesForDay(day.dayName);
-//     totalCorrect += day.numCorrect;
-// })
+let pastDays = [new DayOne(), new DayTwo(), new DayThree(), new DayFour(), new DayFive(), 
+                new DaySix(), new DaySeven(), new DayEight(), new DayNine(), new DayTen(),
+                new DayEleven(), new DayTwelve(), new DayThirteen(), new DayFourteen(), new DayFifteen()];
+let totalCorrect = 0;
+pastDays.forEach(day => {
+    day.solvePuzzlesForDay(day.dayName);
+    totalCorrect += day.numCorrect;
+})
 
-// console.log(`${totalCorrect} / ${pastDays.length * 2} CORRECT`)
-
-let Day15 = new DayFifteen();
-Day15.partTwo()
+console.log(`${totalCorrect} / ${pastDays.length * 2} CORRECT`)

@@ -24,7 +24,7 @@ export class DayFifteen extends Day implements DayInterface {
         let shortestPath = this.traverseUsingDijkstraDistanceMap2();
         console.log(`The shortest path is ${shortestPath}.`)
 
-        return false;
+        return Util.checkAnswer(shortestPath, 2904);
     }
 
     prepareDataForPuzzle() {
