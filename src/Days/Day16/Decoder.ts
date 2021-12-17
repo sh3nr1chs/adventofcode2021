@@ -212,19 +212,26 @@ export class Decoder {
         return children;
     }
 
-    evaluateExpression(topLevelPacket: Packet, value: number = 0){
+    evaluateExpression(topLevelPacket: Packet, value: number | undefined = undefined){
         if((topLevelPacket as any).packets !== undefined) {
             let oPacket = topLevelPacket as OperatorPacket;
             if(oPacket.packetTypeId === 0){
+                value = value===undefined?0:value;
                 oPacket.packets.forEach((child: Packet) => {
-                    value += this.evaluateExpression(child);
+                    (value as number) += this.evaluateExpression(child, value);
+                })
+            }
+            if(oPacket.packetTypeId === 1){
+                oPacket.packets.forEach((child: Packet) => {
+                    value = value===undefined?1:value;
+                    value = (value as number) * this.evaluateExpression(child, value);
                 })
             }
         } else {
             value = (topLevelPacket as LiteralPacket).literalValue;
         }
 
-        return value;
+        return value===undefined?0:value;
 
       
     }
