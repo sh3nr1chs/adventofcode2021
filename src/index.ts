@@ -29,3 +29,4 @@ import { DayNine } from "./Days/Day9/DayNine.js";
 
 let day16 = new DaySixteen();
 day16.partOne();
+day16.partTwo();

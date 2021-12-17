@@ -1,3 +1,4 @@
+import { parse } from "path/posix";
 import { LiteralPacket } from "./LiteralPacket.js";
 import { OperatorPacket } from "./OperatorPacket.js";
 import { Packet } from "./Packet.js";
@@ -85,7 +86,7 @@ export class Decoder {
         return bin;
     }
 
-    decodePackets(): any {
+    getPacketStructure(): any {
         let topLevelPacket;
         this.binString = this.convertHexToBinary();
 
@@ -94,7 +95,7 @@ export class Decoder {
         let isFirstOPacket = true;
 
         let finished = false;
-        while(parseInt(this.binString) !== 0) {
+        while(typeof(parseInt(this.binString)) === 'number' && parseInt(this.binString) > 0) {
             currentOperatorPacketIndex = operatorPackets.length - 1;
             let numBitsInPacket = 0; 
             let versionBin = this.getThreeBits();
@@ -211,19 +212,21 @@ export class Decoder {
         return children;
     }
 
-    // private getPackets(binString:string): Packet{
-        // let version = this.getVersionNumber(binString);
-        // let packetIdType = this.getPacketTypeId(binString);
-        // if(packetIdType === 4){
-        //     //literal value
-        //     let literalValue = this.getLiteralValue(binString);
-        //     return new LiteralPacket(version, literalValue);
-        // } else {
-        //     let operatorPacket =new OperatorPacket(version, packetIdType);
-        //     //check the length type id
-        //     let lengthTypeId = binString.slice(6,7);
+    evaluateExpression(topLevelPacket: Packet, value: number = 0){
+        if((topLevelPacket as any).packets !== undefined) {
+            let oPacket = topLevelPacket as OperatorPacket;
+            if(oPacket.packetTypeId === 0){
+                oPacket.packets.forEach((child: Packet) => {
+                    value += this.evaluateExpression(child);
+                })
+            }
+        } else {
+            value = (topLevelPacket as LiteralPacket).literalValue;
+        }
 
-        // }
-        
-    // }
+        return value;
+
+      
+    }
+    
 }
