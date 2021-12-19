@@ -1,9 +1,5 @@
 export class Packet {
-    version: number;
-    packetTypeId:number;
+    version: number = -1;
+    packetTypeId:number = -1;
     numBits = 0;
-    constructor(version:number, packetTypeId:number){
-        this.version = version;
-        this.packetTypeId = packetTypeId;
-    }
 }

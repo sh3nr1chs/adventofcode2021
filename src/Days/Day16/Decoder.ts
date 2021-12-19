@@ -1,4 +1,4 @@
-import { parse } from "path/posix";
+import { parseCommandLine } from "typescript";
 import { LiteralPacket } from "./LiteralPacket.js";
 import { OperatorPacket } from "./OperatorPacket.js";
 import { Packet } from "./Packet.js";
@@ -9,7 +9,8 @@ export class Decoder {
     constructor(hexString:string) {
         this.hexString = hexString;
     }
-    convertHexToBinary() {
+
+    private convertHexToBinary() {
         var binaryOut = "";
         for(var char of this.hexString.toLowerCase()) {
             switch(char) {
@@ -36,165 +37,116 @@ export class Decoder {
         return binaryOut;
     }
 
-    getVersionNumber(binaryString:string){
-        let binVersion = binaryString.substring(0,3);
-        console.log(`bin version: ${binVersion}`)
-        return parseInt(binVersion, 2);
-    }
-
-    getPacketTypeId(binaryString: string){
-        let binPacketTypeId = binaryString.substring(3,6);
-        console.log(`bin packet type: ${binPacketTypeId}`)
-        return parseInt(binPacketTypeId, 2);
-    }
-
-    getLiteralValue(){
-        let finishedReadingLiteral = false;
-        //header is the first six characters
-    
+    private getLiteralBinStringSegment(packet:Packet){
         let literalBinString = '';
+
+        let numBitsInSegment = 0;
+        let finishedReadingLiteral = false;
         while (!finishedReadingLiteral){
+            //get five characters
             let groupBin = this.binString.substring(0,5);
-            console.log(`groupBin : ${groupBin}`)
-            let indicator = groupBin.slice(0,1);
-            finishedReadingLiteral = indicator === '0';
-            literalBinString = literalBinString.concat(groupBin.substring(1))
+            numBitsInSegment += 5;
             this.binString = this.binString.substring(5);
-           
-
+            //check the indicator for whether this is the last group
+            finishedReadingLiteral = groupBin.slice(0,1) === '0';
+            literalBinString = literalBinString.concat(groupBin.substring(1))
         }
-        console.log(literalBinString)
+
+        packet.numBits += numBitsInSegment;
+
         return literalBinString;
-
     }
 
-    private getOneBit(){
-        let bin = this.binString.substring(0,1);
-        this.binString = this.binString.substring(1);
-        return bin;
-    }
-
-    private getThreeBits(){
-        let bin = this.binString.substring(0,3);
-        this.binString = this.binString.substring(3);
-        return bin;
-    }
-
-    private getNumBits(numBits:number){
-        let bin = this.binString.substring(0,numBits);
-        this.binString = this.binString.substring(numBits);
-        return bin;
+    private getSegment(numBitsInSegment:number, packet:Packet) {
+        let binSegment = this.binString.substring(0, numBitsInSegment);
+        this.binString = this.binString.substring(numBitsInSegment);
+        packet.numBits += numBitsInSegment;
+        return binSegment;
     }
 
     getPacketStructure(): any {
-        let topLevelPacket;
         this.binString = this.convertHexToBinary();
+        let topLevelPacket;
 
         let operatorPackets:OperatorPacket[] = []
-        let currentOperatorPacketIndex = -1;
-        let isFirstOPacket = true;
 
-        let finished = false;
+        //either exhaust the binary string or stop when all that's left is 0s
         while(typeof(parseInt(this.binString)) === 'number' && parseInt(this.binString) > 0) {
-            currentOperatorPacketIndex = operatorPackets.length - 1;
-            let numBitsInPacket = 0; 
-            let versionBin = this.getThreeBits();
-            
-                numBitsInPacket += 3;
-            
+            let currentOPacket = operatorPackets[operatorPackets.length - 1]
 
+            let packet = new Packet();
+
+            let versionBin = this.getSegment(3, packet);
             let version = parseInt(versionBin, 2);
+            packet.version = version;
 
-            let packetIdTypeBin = this.getThreeBits();
-            numBitsInPacket += 3;
-            
+            let packetIdTypeBin = this.getSegment(3, packet);
             let packetIdType = parseInt(packetIdTypeBin, 2);
+            packet.packetTypeId = packetIdType;
+
             if(packetIdType === 4){
+                let literalPacket = new LiteralPacket(packet);
                 //literal value
-                let literalBinValue = this.getLiteralValue();
-               
-                    numBitsInPacket +=(literalBinValue.length + literalBinValue.length/4)
-                
+                let literalBinValue = this.getLiteralBinStringSegment(literalPacket);
                 let literalValue = parseInt(literalBinValue, 2);
-                let literalPacket = new LiteralPacket(version, literalValue);
-                literalPacket.numBits = numBitsInPacket;
-                if(operatorPackets.length === 0){
+                literalPacket.literalValue = literalValue;
+
+                if(!topLevelPacket){
                     topLevelPacket = literalPacket;
-                    finished = true;
+                    this.binString = '00';
                 } else {
-                    operatorPackets[currentOperatorPacketIndex].packets.push(literalPacket);
+                    currentOPacket.packets.push(literalPacket);
                 }
+
             } else {
-                let operatorPacket = new OperatorPacket(version, packetIdType);
-                if(currentOperatorPacketIndex !== -1){
-                    operatorPackets[currentOperatorPacketIndex].packets.push(operatorPacket)
-                }
+                let operatorPacket = new OperatorPacket(packet);
                 
                 //check the length type id
-                let lengthTypeId = this.getOneBit();
-                numBitsInPacket ++;
-                if (lengthTypeId === '0') {
-                    let numBitsContainedBin = this.getNumBits(15);
-                    numBitsInPacket += 15;
+                let lengthTypeIdBit = this.getSegment(1, operatorPacket);
+                if (lengthTypeIdBit === '0') {
+                    let numBitsContainedBin = this.getSegment(15, operatorPacket);
                     operatorPacket.numBitsForSubPackets = parseInt(numBitsContainedBin, 2);
                 } else {
-                    let numPacketsContainedBin = this.getNumBits(11);
-                    numBitsInPacket += 11;
+                    let numPacketsContainedBin = this.getSegment(11, operatorPacket);
                     operatorPacket.numSubPackets = parseInt(numPacketsContainedBin, 2);
                 }
 
-                operatorPacket.numBits = numBitsInPacket;
-                if(isFirstOPacket){
-                    isFirstOPacket = false;
-                    topLevelPacket = operatorPacket;
-                }
                 operatorPackets.push(operatorPacket);
-                // currentOperatorPacketIndex++;
-                
-    
+                if(!topLevelPacket){
+                    topLevelPacket = operatorPacket;
+                } else {
+                    currentOPacket.packets.push(operatorPacket);
+                }
             }
 
-            //update completed packets
+            //remove completed operator packets
             operatorPackets = operatorPackets.filter(oPacket => {
-                if(oPacket.numSubPackets !== -1 && oPacket.numSubPackets === this.totalSubPackets(oPacket)){
+                let numSubPackets = this.getTotalSubPackets(oPacket);
+                let numBitsInSubPackets = this.getNumBitsInSubPacket(oPacket);
+                if(oPacket.numSubPackets !== -1 && oPacket.numSubPackets === numSubPackets){
                     return false;
                 }
-                if(oPacket.numBitsForSubPackets !== -1 && oPacket.numBitsForSubPackets === (this.totalBits(oPacket))){
+                if(oPacket.numBitsForSubPackets !== -1 && oPacket.numBitsForSubPackets === numBitsInSubPackets){
                     return false;
                 }
 
                 return true;
             })
-
         }
-
-
         return topLevelPacket;
-        // let packet = this.getPackets(binString);
-        
     }
 
-    private totalSubPackets(packet: Packet){
-        return(this.getDirectChildPackets(packet).length)
+    private getTotalSubPackets(packet: OperatorPacket){
+        return(packet.packets.length)
     }
 
-    private totalBits(packet: Packet){
-        let childPackets = this.getDirectChildPackets(packet);
-        let totalBits = 0;
-        childPackets.forEach(child => {
-            totalBits += child.numBits;
-        })
+    private getNumBitsInSubPacket(packet: Packet){
+        let childPackets = this.getChildPackets(packet);
+        let totalBits = childPackets.reduce((prev, curr) => {
+            return {numBits:prev.numBits+curr.numBits}
+        }, {numBits:0});
 
-        return totalBits;
-    }
-
-    getDirectChildPackets(packet: Packet) {
-        let children = [];
-        if((packet as any).packets !== undefined){
-            children.push(...(packet as any).packets)
-        }
-
-        return children;
+        return totalBits.numBits;
     }
 
     getChildPackets(packet: Packet, children: Packet[] = []): Packet[] {
@@ -203,37 +155,57 @@ export class Decoder {
             children.push(...oPacket.packets)
             oPacket.packets.forEach((childPacket: Packet) => {
                 children = this.getChildPackets(childPacket, children)
-            })
-
-            
-            
+            })            
         }
 
         return children;
     }
 
-    evaluateExpression(topLevelPacket: Packet, value: number | undefined = undefined){
-        if((topLevelPacket as any).packets !== undefined) {
-            let oPacket = topLevelPacket as OperatorPacket;
-            if(oPacket.packetTypeId === 0){
-                value = value===undefined?0:value;
-                oPacket.packets.forEach((child: Packet) => {
-                    (value as number) += this.evaluateExpression(child, value);
-                })
-            }
-            if(oPacket.packetTypeId === 1){
-                oPacket.packets.forEach((child: Packet) => {
-                    value = value===undefined?1:value;
-                    value = (value as number) * this.evaluateExpression(child, value);
-                })
-            }
-        } else {
-            value = (topLevelPacket as LiteralPacket).literalValue;
+    evaluateExpression(topLevelPacket: Packet){
+        let value = 0;
+        
+        //get all the children values for the top level packet
+        let childValues : number[] = [];
+        if (topLevelPacket instanceof OperatorPacket) {            
+            (topLevelPacket as OperatorPacket).packets.forEach((child: Packet) => {
+                childValues.push(this.evaluateExpression(child));
+            })
+        }
+            
+        let packetIdType = topLevelPacket.packetTypeId;
+        //for comparison packet types, there should only be two sub packets
+        if ((packetIdType === 5 || packetIdType === 6 || packetIdType === 7) && childValues.length !==2){
+            throw Error(`wrong number of subpackets, expected 2 but got ${childValues.length}`)
         }
 
-        return value===undefined?0:value;
-
-      
+        //evaluate the expression based on the packet id type
+        switch(packetIdType) {
+            case 0:
+                value = childValues.reduce((prev, curr) => prev + curr);
+                break;
+            case 1:
+                value = childValues.reduce((prev, curr) => prev * curr);
+                break;
+            case 2:
+                value = Math.min(...childValues);
+                break;
+            case 3:
+                value = Math.max(...childValues);
+                break;
+            case 5:
+                value = childValues[0] > childValues[1]?1:0;
+                break;
+            case 6:
+                value = childValues[0] < childValues[1]?1:0;
+                break;
+            case 7:
+                value = childValues[0] === childValues[1]?1:0;
+                break;
+            default:
+                value = (topLevelPacket as LiteralPacket).literalValue;
+        }
+    
+        return value;
     }
     
 }

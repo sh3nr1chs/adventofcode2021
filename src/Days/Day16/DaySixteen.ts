@@ -2,7 +2,6 @@ import { Util } from "../../shared/util.js";
 import { Day } from "../Day.js";
 import { DayInterface } from "../DayInterface.js";
 import { Decoder } from "./Decoder.js";
-import { OperatorPacket } from "./OperatorPacket.js";
 import { Packet } from "./Packet.js";
 
 export class DaySixteen extends Day implements DayInterface {
@@ -10,42 +9,41 @@ export class DaySixteen extends Day implements DayInterface {
 
     hexString: string ='';
 
+    decoder: Decoder = new Decoder('');
+
     partOne(): boolean {
         this.prepareDataForPuzzle();
-        let decoder = new Decoder(this.hexString);
-        let topLevelPacket = decoder.getPacketStructure();
+        let topLevelPacket = this.decoder.getPacketStructure();
 
-        let versionTotal = this.totalVersion(topLevelPacket, decoder);
-
+        let versionTotal = this.calculateTotalVersion(topLevelPacket);
         console.log(`Total Version For All Packets: ${versionTotal}`);
 
         return Util.checkAnswer(versionTotal, 984);
     }
 
-    partTwo(): boolean {
-        this.prepareDataForPuzzle();
-        let decoder = new Decoder(this.hexString);
-        let topLevelPacket = decoder.getPacketStructure();
-
-        let expressionValue = decoder.evaluateExpression(topLevelPacket);
-
-        console.log(`Value of the expression: ${expressionValue}`);
-
-        return false;
-    }
-
-    private totalVersion(topLevelPacket: Packet, decoder:Decoder){
+    private calculateTotalVersion(topLevelPacket: Packet){
         let totalVersion = topLevelPacket.version;
-        decoder.getChildPackets(topLevelPacket).forEach(childPacket => {
+        this.decoder.getChildPackets(topLevelPacket).forEach(childPacket => {
             totalVersion += childPacket.version;
         })
 
         return totalVersion;
     }
 
+    partTwo(): boolean {
+        this.prepareDataForPuzzle();
+        let topLevelPacket = this.decoder.getPacketStructure();
+
+        let expressionValue = this.decoder.evaluateExpression(topLevelPacket);
+        console.log(`Value of the expression: ${expressionValue}`);
+
+        return Util.checkAnswer(expressionValue, 1015320896946);
+    }
+
     prepareDataForPuzzle() {
         if(this.hexString === ''){
-            this.hexString = this.dataReader.convertFileToStringArray("inputFiles/testInput.txt")[0]
+            this.hexString = this.dataReader.convertFileToStringArray("inputFiles/daySixteenInput.txt")[0]
+            this.decoder = new Decoder(this.hexString);
         }
     }
 
