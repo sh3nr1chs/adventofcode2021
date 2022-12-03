@@ -11,8 +11,7 @@ export class DayThree extends Day implements DayInterface {
         this.prepareDataForPuzzle();
 
         let splitSacks = this.splitSacks();
-        let duplicateItems = this.findDupsPerSack(splitSacks);
-        let sumOfPriorities = this.getSumOfPriorities(duplicateItems);
+        let sumOfPriorities = this.getSumOfPrioritiesBySack(splitSacks);
 
         console.log(`The sum of the mis-packed item priorities is ${sumOfPriorities}`);
         return Util.checkAnswer(sumOfPriorities, 7872);
@@ -21,8 +20,7 @@ export class DayThree extends Day implements DayInterface {
     partTwo() {
         this.prepareDataForPuzzle();
 
-        let badgeItem = this.findDupsPerGroupOfThreeSacks();
-        let sumOfPriorities = this.getSumOfPriorities(badgeItem);
+        let sumOfPriorities = this.getSumOfPrioritiesByBadge();
 
         console.log(`The sum of the badge item priorities is ${sumOfPriorities}`);
         return Util.checkAnswer(sumOfPriorities, 2497);
@@ -49,13 +47,29 @@ export class DayThree extends Day implements DayInterface {
         return splitSacks;
     }
 
-    findDupsPerSack(sacks: Array<Array<string>>){
-        let dups: string[] = [];
+    getSumOfPrioritiesBySack(sacks: Array<Array<string>>){
+        let sum = 0;
         sacks.forEach(sack => {
-            dups.push(this.getDuplicateItems(sack[0].split(""), sack[1].split(""))[0]);
+            let dupItem = this.getDuplicateItems(sack[0].split(""), sack[1].split(""))[0];
+            sum += this.getPriorityOfItem(dupItem);
         })
 
-        return dups;
+        return sum;
+    }
+
+    getSumOfPrioritiesByBadge() {
+        let sum = 0;
+        let numberOfRuckSacks = this.ruckSacks.length;
+        for (let i = 0; i < numberOfRuckSacks; i=i+3) {
+            let firstSack = this.ruckSacks[i];
+            let secondSack = this.ruckSacks[i+1];
+            let thirdSack = this.ruckSacks[i+2];
+
+            let dupsFirstAndSecond : string[]= this.getDuplicateItems(firstSack.split(""), secondSack.split(""));
+            let badgeForGroup = this.getDuplicateItems(dupsFirstAndSecond, thirdSack.split(""))[0];
+            sum += this.getPriorityOfItem(badgeForGroup);
+        }
+        return sum;
     }
 
     getDuplicateItems(groupOne: string[], groupTwo: string[]) {
@@ -69,31 +83,15 @@ export class DayThree extends Day implements DayInterface {
         return dups;
     }
 
-    findDupsPerGroupOfThreeSacks() {
-        let badges: Array<string> = [];
-        let numberOfRuckSacks = this.ruckSacks.length;
-        for (let i = 0; i < numberOfRuckSacks; i=i+3) {
-            let firstSack = this.ruckSacks[i];
-            let secondSack = this.ruckSacks[i+1];
-            let thirdSack = this.ruckSacks[i+2];
+    getPriorityOfItem(item: string) {
+        let priority = 0;
+        let itemCharCode = item.charCodeAt(0);
+        if (itemCharCode < 97) {
+            priority = itemCharCode-38;
+        } else {
+            priority = itemCharCode-96;
+        } 
 
-            let dupsFirstAndSecond : string[]= this.getDuplicateItems(firstSack.split(""), secondSack.split(""));
-            badges.push(this.getDuplicateItems(dupsFirstAndSecond, thirdSack.split(""))[0]);
-        }
-        return badges;
-    }
-
-    getSumOfPriorities(items :string[]){
-        let sum = 0;
-        items.forEach(item => {
-            let itemCharCode = item.charCodeAt(0);
-            if (itemCharCode < 97) {
-                sum += itemCharCode-38;
-            } else {
-                sum += itemCharCode-96;
-            }
-        })
-
-        return sum;
+        return priority;
     }
 }
