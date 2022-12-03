@@ -50,17 +50,20 @@ export class DayThree extends Day implements DayInterface {
     }
 
     findDupsPerSack(sacks: Array<Array<string>>){
-        let dups: Array<string> = [];
+        let dups: string[] = [];
         sacks.forEach(sack => {
-            let dupFound = false;
-            let splitSack = sack[0].split("");
-           splitSack.forEach(item => {
-               
-                if(!dupFound && sack[1].indexOf(item) != -1) {
-                    dups.push(item);
-                    dupFound = true;
-                }
-            })    
+            dups.push(this.getDuplicateItems(sack[0].split(""), sack[1].split(""))[0]);
+        })
+
+        return dups;
+    }
+
+    getDuplicateItems(groupOne: string[], groupTwo: string[]) {
+        let dups : string[]= [];
+        groupOne.forEach(item => {
+            if (dups.indexOf(item) === -1 && groupTwo.indexOf(item) != -1) {
+                dups.push(item);
+            }
         })
 
         return dups;
@@ -74,23 +77,8 @@ export class DayThree extends Day implements DayInterface {
             let secondSack = this.ruckSacks[i+1];
             let thirdSack = this.ruckSacks[i+2];
 
-            //compareFirstSackAndSecondSack
-            let dupsFirstAndSecond : string[]= [];
-            let splitFirstSack = firstSack.split("");
-            splitFirstSack.forEach(item => {
-                if(dupsFirstAndSecond.indexOf(item) === -1 && secondSack.indexOf(item) != -1) {
-                    dupsFirstAndSecond.push(item);
-                }
-            })
-
-            let dupFound = false;
-            dupsFirstAndSecond.forEach(item => {
-                if(!dupFound && thirdSack.indexOf(item) != -1) {
-                    badges.push(item);
-                    dupFound = true;
-                }
-            })
-
+            let dupsFirstAndSecond : string[]= this.getDuplicateItems(firstSack.split(""), secondSack.split(""));
+            badges.push(this.getDuplicateItems(dupsFirstAndSecond, thirdSack.split(""))[0]);
         }
         return badges;
     }
