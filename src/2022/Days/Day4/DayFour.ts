@@ -37,7 +37,7 @@ export class DayFour extends Day implements DayInterface {
         this.pairAssignments.forEach(pairAssignment => {
           
             if (this.isRangeWithinRange(pairAssignment.pairOne, pairAssignment.pairTwo) 
-                || this.isRangeWithinRange(pairAssignment.pairTwo, pairAssignment.pairOne)){
+             || this.isRangeWithinRange(pairAssignment.pairTwo, pairAssignment.pairOne)){
                 count++;
             }
         })
@@ -49,9 +49,9 @@ export class DayFour extends Day implements DayInterface {
         let count = 0;
         this.pairAssignments.forEach(pairAssignment => {
            if (this.isSingleValueWithinRange(pairAssignment.pairOne[0], pairAssignment.pairTwo) 
-           || this.isSingleValueWithinRange(pairAssignment.pairOne[1], pairAssignment.pairTwo)
-           || this.isSingleValueWithinRange(pairAssignment.pairTwo[0], pairAssignment.pairOne)
-           || this.isSingleValueWithinRange(pairAssignment.pairTwo[1], pairAssignment.pairOne) ) {
+            || this.isSingleValueWithinRange(pairAssignment.pairOne[1], pairAssignment.pairTwo)
+            || this.isSingleValueWithinRange(pairAssignment.pairTwo[0], pairAssignment.pairOne)
+            || this.isSingleValueWithinRange(pairAssignment.pairTwo[1], pairAssignment.pairOne) ) {
                count++;
            }
         })
@@ -61,7 +61,7 @@ export class DayFour extends Day implements DayInterface {
 
     isRangeWithinRange(rangeOne: number[], rangeTwo: number[]) {
       return this.isSingleValueWithinRange(rangeOne[0], rangeTwo) 
-      && this.isSingleValueWithinRange(rangeOne[1], rangeTwo);  
+          && this.isSingleValueWithinRange(rangeOne[1], rangeTwo);  
     }
 
     isSingleValueWithinRange(value: number, range:number[]) {
