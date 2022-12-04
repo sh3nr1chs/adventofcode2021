@@ -3,6 +3,7 @@ import { DataReader } from "./dataReader.js";
 export class Day {
     dataReader: DataReader = new DataReader();
     numCorrect = 0;
+    dayName = '';
 
     solvePuzzlesForDay(dayName:string) {
         console.log('~~~~~~~~~~~~~~')
