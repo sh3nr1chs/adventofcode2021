@@ -18,6 +18,7 @@ import { DayNine } from "./2021/Days/Day9/DayNine.js";
 import { DayOne as DayOne22 } from "./2022/Days/Day1/DayOne.js";
 import { DayTwo as DayTwo22 } from "./2022/Days/Day2/DayTwo.js";
 import { DayThree as DayThree22 } from "./2022/Days/Day3/DayThree.js";
+import { DayFour as DayFour22 } from "./2022/Days/Day4/DayFour.js";
 
 const runPrevYears = false;
 
@@ -36,7 +37,7 @@ if (runPrevYears){
 }
 
 const runAllDays = false;
-let twentyTwentyTwo = runAllDays? [new DayOne22(), new DayTwo22(), new DayThree22()] : [new DayThree22()];
+let twentyTwentyTwo = runAllDays? [new DayOne22(), new DayTwo22(), new DayThree22(), new DayFour22()] : [new DayFour22()];
 
 let totalCorrectForYear = 0;
 twentyTwentyTwo.forEach(day => {
