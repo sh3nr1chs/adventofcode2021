@@ -1,5 +1,5 @@
 export class Util {
-    static checkAnswer(solution: number, correctAnswer: number): boolean {
+    static checkAnswer(solution: any, correctAnswer: any): boolean {
         let correct = solution === correctAnswer;
         if (correct) {
             console.log('CORRECT');
