@@ -30,20 +30,20 @@ export class DaySix extends Day implements DayInterface {
 
     findStartOfPacket(maxCharacters: number) {
         let foundStart = false;
-        let fourCharacters = [];
+        let currentCharacters = [];
         let count = 0;
 
         while(!foundStart) {
             count++;
 
-            fourCharacters.push(this.characters.shift());
-            if (fourCharacters.length === maxCharacters) {
+            currentCharacters.push(this.characters.shift());
+            if (currentCharacters.length === maxCharacters) {
                 //check for dups
-                let set = new Set(fourCharacters);
+                let set = new Set(currentCharacters);
                 if (set.size === maxCharacters){
                     foundStart = true
                 } else {
-                    fourCharacters.shift();
+                    currentCharacters.shift();
                 }
             }
         }
