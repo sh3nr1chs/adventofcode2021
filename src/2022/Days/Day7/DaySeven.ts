@@ -6,7 +6,7 @@ import { DirectoryNode } from "./DirectoryNode.js";
 import { TerminalOutputReader } from "./TerminalOutputReader.js";
 
 export class DaySeven extends Day implements DayInterface {
-    dayName: string = '2022 Day Six';
+    dayName: string = '2022 Day Seven';
 
     terminalOutputReader = new TerminalOutputReader(this.dataReader);
     root!: DirectoryNode;
