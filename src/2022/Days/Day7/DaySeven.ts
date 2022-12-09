@@ -21,7 +21,7 @@ export class DaySeven extends Day implements DayInterface {
 
         let totalSizeForSmallDirectories = 0;
         this.smallDirectories.forEach(smol => totalSizeForSmallDirectories += smol.size)
-        console.log(`The total size of all directories < 100000 is ${totalSizeForSmallDirectories}`);
+        console.log(`The total size of all directories < 100000 is ${totalSizeForSmallDirectories}.`);
      
         return Util.checkAnswer(totalSizeForSmallDirectories, 2031851);
     }
@@ -34,7 +34,7 @@ export class DaySeven extends Day implements DayInterface {
         this.traverse(this.root, needAtLeast);
         this.possibleDeletes.sort((a,b) => a.size - b.size);
      
-        console.log(`Delete ${this.possibleDeletes[0].name} to free up ${this.possibleDeletes[0].size}`);
+        console.log(`Delete ${this.possibleDeletes[0].name} to free up ${this.possibleDeletes[0].size}.`);
      
         return Util.checkAnswer(this.possibleDeletes[0].size, 2568781);
     }
