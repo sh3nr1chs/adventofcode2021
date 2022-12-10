@@ -51,11 +51,11 @@ export class DayTen extends Day implements DayInterface {
 
                 let instruction = this.instructions[instructionIndex];
                 if(instruction.split(" ")[1] != undefined){
-                    //add command
+                    //parse add command
                     nextValueToAdd = parseInt(instruction.split(" ")[1]);
-                    pauseInstructionProcessing = true;
 
                     //needed to pause processing instructions
+                    pauseInstructionProcessing = true;
                     instructionIndex --;
                 } else {
                     //noop
@@ -73,8 +73,6 @@ export class DayTen extends Day implements DayInterface {
                 displayLine = displayLine.concat(' ')
             }
             drawPos++;
-            
-            
             
             if(valueMap.get(cycleCount) != undefined) {
                 //calculate signal strenght for interesting cycles
