@@ -7,6 +7,7 @@ import { DayFive } from "./Days/Day5/DayFive.js";
 import { DaySix } from "./Days/Day6/DaySix.js";
 import { DaySeven } from "./Days/Day7/DaySeven.js";
 import { DayEight } from "./Days/Day8/DayEight.js";
+import { DayNine } from "./Days/Day9/DayNine.js";
 
 
 
@@ -16,10 +17,10 @@ export class TwentyTwentyTwo extends Year {
     constructor() {
         super();
         
-        let runAllDays = true;
+        let runAllDays = false;
         this.days = runAllDays? [new DayOne(), new DayTwo(), new DayThree(), new DayFour(), new DayFive(), 
-                                 new DaySix(), new DaySeven(), new DayEight()] 
+                                 new DaySix(), new DaySeven(), new DayEight(), new DayNine()] 
                                  
-                                : [new DayEight()];
+                                : [new DayNine()];
     }
 }
