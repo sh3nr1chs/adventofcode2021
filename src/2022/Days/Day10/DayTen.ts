@@ -5,7 +5,6 @@ import { Util } from "../../../shared/util.js";
 export class DayTen extends Day implements DayInterface {
     dayName: string = '2022 Day Ten';
 
-    cycleValues:number[] = [1];
     instructions:string[] = [];
 
     partOne() {
